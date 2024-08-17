@@ -1,5 +1,10 @@
 <script setup>
 import { ref } from 'vue';
+import { loginService } from '@/api/user.js'
+import { useUserStore } from '@/stores'
+import router from '@/router';
+import { ElMessage } from 'element-plus';
+const form = ref()
 //登录表单
 const formModel = ref({
     username: '',
@@ -20,6 +25,19 @@ const rules = {
         }
     ],
 }
+const userStore = useUserStore()
+const login = async () => {
+    //登录之前的校验
+    await form.value.validate()
+    console.log("开始进行登录")
+    //登录请求
+    const res = await loginService(formModel.value)
+    ElMessage.success('登录成功')
+
+    //存token
+    userStore.setToken(res.data.data.token)
+    router.push('/home')
+}
 </script>
 <template>
 
@@ -31,19 +49,18 @@ const rules = {
             登录
         </h1>
         <div class="loginFrame">
-            <el-form :model="formModel" :rules="rules" class="form">
+            <el-form ref="form" :model="formModel" :rules="rules" class="form">
 
                 <el-form-item prop="username">
                     <p>用户名</p>
-                    <el-input :prefix-icon="User" v-model="formModel.username" style="width: 20vw;"
-                        placeholder="请输入用户名"></el-input>
+                    <el-input v-model="formModel.username" style="width: 20vw;" placeholder="请输入用户名"></el-input>
                 </el-form-item>
-                <el-form-item :prefix-icon="Lock" prop="password">
+                <el-form-item prop="password">
                     <p style="margin-right:22px;">密码</p>
                     <el-input style="width: 20vw" v-model="formModel.password" placeholder="请输入密码" type="password"
                         show-password></el-input>
                 </el-form-item>
-                <el-button class="button" type="primary">登录</el-button>
+                <el-button @click="login" class="button" type="primary">登录</el-button>
                 <a href="/register" class="flex">没有账号？去注册</a>
             </el-form>
         </div>

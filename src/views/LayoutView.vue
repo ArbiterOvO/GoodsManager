@@ -1,23 +1,13 @@
 <script setup>
 import router from '@/router';
-
+import { useUserStore } from '@/stores'
+import { onMounted } from 'vue';
+const userStore = useUserStore()
+onMounted(() => {
+    userStore.getUser()
+})
 const handleSelect = (index) => {
-    switch (index) {
-        case '1':
-            router.push('/home');
-            break;
-        case '2':
-            router.push('/goods');
-            break;
-        case '3':
-            router.push('/original');
-            break;
-        case '4':
-            router.push('/brand');
-            break;
-        default:
-            break;
-    }
+    router.push(index)
 }
 </script>
 
@@ -27,27 +17,27 @@ const handleSelect = (index) => {
             <div class="logo">
                 <h1>A集团</h1>
             </div>
-            <el-menu active-text-color="#ffd04b" background-color="#545c64" class="menu" default-active="1"
-                text-color="#fff" @select="handleSelect">
-                <el-menu-item index="1" class="menu-item">
+            <el-menu active-text-color="#ffd04b" router="true" background-color="#545c64" class="menu"
+                :default-active="$route.path" text-color="#fff" @select="handleSelect">
+                <el-menu-item index="/home" class="menu-item">
                     <el-icon>
                         <HomeFilled />
                     </el-icon>
                     <span class="menu-item-text">首页</span>
                 </el-menu-item>
-                <el-menu-item index="2" class="menu-item">
+                <el-menu-item index="/goods" class="menu-item">
                     <el-icon>
                         <ShoppingBag />
                     </el-icon>
                     <span class="menu-item-text">商品管理</span>
                 </el-menu-item>
-                <el-menu-item index="3" class="menu-item">
+                <el-menu-item index="/original" class="menu-item">
                     <el-icon>
                         <Wallet />
                     </el-icon>
                     <span class="menu-item-text">货源管理</span>
                 </el-menu-item>
-                <el-menu-item index="4" class="menu-item">
+                <el-menu-item index="/brand" class="menu-item">
                     <el-icon>
                         <CollectionTag />
                     </el-icon>
@@ -67,7 +57,7 @@ const handleSelect = (index) => {
                             <el-icon style="position: relative;top:20%">
                                 <User />
                             </el-icon>
-                            用户名
+                            {{ userStore.user.username }}
                             <el-icon>
                                 <CaretBottom />
                             </el-icon>

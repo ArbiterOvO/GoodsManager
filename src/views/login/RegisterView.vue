@@ -1,5 +1,9 @@
 <script setup>
 import { ref } from 'vue';
+import { registerService } from '@/api/user.js'
+import router from '@/router';
+import { ElMessage } from 'element-plus';
+const form = ref()
 //注册表单
 const formModel = ref({
     username: '',
@@ -39,6 +43,17 @@ const rules = {
             trigger: 'blur'
         }]
 }
+
+const register = async () => {
+    //注册之前的校验
+    await form.value.validate()
+    console.log("开始进行注册")
+    //注册请求
+    await registerService(formModel.value)
+    ElMessage.success('注册成功')
+
+    router.push('/')
+}
 </script>
 <template>
 
@@ -50,23 +65,20 @@ const rules = {
             注册
         </h1>
         <div class="loginFrame">
-            <el-form :model="formModel" class="form" :rules="rules">
+            <el-form :model="formModel" ref="form" class="form" :rules="rules">
                 <el-form-item prop="username" class="username">
                     <p style="margin-right: 20px;">用户名</p>
-                    <el-input :prefix-icon="User" style="width: 20vw;" v-model="formModel.username"
-                        placeholder="请输入用户名"></el-input>
+                    <el-input style="width: 20vw;" v-model="formModel.username" placeholder="请输入用户名"></el-input>
                 </el-form-item>
                 <el-form-item prop="password" class="password">
                     <p style="margin-right: 40px;">密码</p>
-                    <el-input :prefix-icon="Lock" style="width: 20vw" v-model="formModel.password"
-                        placeholder="请输入密码"></el-input>
+                    <el-input style="width: 20vw" v-model="formModel.password" placeholder="请输入密码"></el-input>
                 </el-form-item>
                 <el-form-item prop="repassword" class="rePassword">
                     <p>确认密码</p>
-                    <el-input :prefix-icon="Lock" style="width: 20vw" v-model="formModel.repassword"
-                        placeholder="请再次输入密码"></el-input>
+                    <el-input style="width: 20vw" v-model="formModel.repassword" placeholder="请再次输入密码"></el-input>
                 </el-form-item>
-                <el-button type="primary" class="button">注册</el-button>
+                <el-button :onclick="register" type="primary" class="button">注册</el-button>
                 <a href="/" class="flex">已有账号？去登录</a>
             </el-form>
         </div>

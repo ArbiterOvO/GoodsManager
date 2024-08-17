@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
+import { useUserStore } from '@/stores'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -42,4 +42,17 @@ const router = createRouter({
   ]
 })
 
+router.beforeEach((to, from, next) => {
+  const userStore = useUserStore()
+  // 获取token
+  const token = userStore.token
+  if (to.path === '/' || to.path === '/register' || token) {
+    next()
+  } else {
+    next({
+      path: '/',
+      query: { redirect: to.fullPath }
+    })
+  }
+})
 export default router
