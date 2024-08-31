@@ -1,6 +1,7 @@
 <script setup>
 import router from '@/router';
 import { useUserStore } from '@/stores'
+import { ElMessage } from 'element-plus';
 import { onMounted } from 'vue';
 const userStore = useUserStore()
 onMounted(() => {
@@ -8,6 +9,18 @@ onMounted(() => {
 })
 const handleSelect = (index) => {
     router.push(index)
+}
+
+const showSlefInfo = () => {
+    router.push('/self')
+    console.log('showSlefInfo')
+}
+
+const logout = () => {
+
+    router.push('/')
+    userStore.removeToken()
+    ElMessage.success('注销成功')
 }
 </script>
 
@@ -17,7 +30,7 @@ const handleSelect = (index) => {
             <div class="logo">
                 <h1>A集团</h1>
             </div>
-            <el-menu active-text-color="#ffd04b" router="true" background-color="#545c64" class="menu"
+            <el-menu active-text-color="#ffd04b" router background-color="#545c64" class="menu"
                 :default-active="$route.path" text-color="#fff" @select="handleSelect">
                 <el-menu-item index="/home" class="menu-item">
                     <el-icon>
@@ -64,8 +77,8 @@ const handleSelect = (index) => {
                         </span>
                         <template v-slot:dropdown>
                             <el-dropdown-menu>
-                                <el-dropdown-item>个人信息</el-dropdown-item>
-                                <el-dropdown-item>退出登录</el-dropdown-item>
+                                <el-dropdown-item><span @click="showSlefInfo()">个人信息</span></el-dropdown-item>
+                                <el-dropdown-item><span @click="logout()">退出登录</span></el-dropdown-item>
                             </el-dropdown-menu>
                         </template>
                     </el-dropdown>
@@ -73,7 +86,7 @@ const handleSelect = (index) => {
             </el-header>
             <el-main class="main">
                 <div style="flex: 1;display: flex;">
-                    <router-view></router-view>
+                    <router-view :key="$route.fullPath"></router-view>
                 </div>
             </el-main>
         </el-container>

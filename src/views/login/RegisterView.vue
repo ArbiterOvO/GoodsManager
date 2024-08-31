@@ -8,7 +8,10 @@ const form = ref()
 const formModel = ref({
     username: '',
     password: '',
-    repassword: ''
+    repassword: '',
+    age: '',
+    phone: '',
+    gender: ''
 })
 
 const rules = {
@@ -42,6 +45,25 @@ const rules = {
             },
             trigger: 'blur'
         }]
+    , age: [
+        { required: true, message: '请输入年龄', trigger: 'blur' },
+        {
+            pattern: /^\d{1,2}$/,
+            message: '年龄必须是 1-2位 的数字',
+            trigger: 'blur'
+        }
+    ],
+    phone: [
+        { required: true, message: '请输入手机号', trigger: 'blur' },
+        {
+            pattern: /^1[3-9]\d{9}$/,
+            message: '手机号格式不正确',
+            trigger: 'blur'
+        }
+    ],
+    gender: [
+        { required: true, message: '请选择性别', trigger: 'blur' }
+    ]
 }
 
 const register = async () => {
@@ -58,26 +80,39 @@ const register = async () => {
 <template>
 
     <div class="login">
-        <h2>
-            商品管理系统
-        </h2>
         <h1>
             注册
         </h1>
         <div class="loginFrame">
             <el-form :model="formModel" ref="form" class="form" :rules="rules">
-                <el-form-item prop="username" class="username">
+                <el-form-item prop="username">
                     <p style="margin-right: 20px;">用户名</p>
                     <el-input style="width: 20vw;" v-model="formModel.username" placeholder="请输入用户名"></el-input>
                 </el-form-item>
-                <el-form-item prop="password" class="password">
+                <el-form-item prop="password">
                     <p style="margin-right: 40px;">密码</p>
                     <el-input style="width: 20vw" v-model="formModel.password" placeholder="请输入密码"></el-input>
                 </el-form-item>
-                <el-form-item prop="repassword" class="rePassword">
+                <el-form-item prop="repassword">
                     <p>确认密码</p>
                     <el-input style="width: 20vw" v-model="formModel.repassword" placeholder="请再次输入密码"></el-input>
                 </el-form-item>
+                <el-form-item prop="age">
+                    <p style="margin-right: 40px;">年龄</p>
+                    <el-input style="width: 20vw" v-model="formModel.age" placeholder="请输入年龄"></el-input>
+                </el-form-item>
+                <el-form-item prop="phone">
+                    <p style="margin-right: 20px;">手机号</p>
+                    <el-input style="width: 20vw" v-model="formModel.phone" placeholder="请输入手机号"></el-input>
+                </el-form-item>
+                <el-form-item prop="gender" style="margin-right: 285px;">
+                    <p style="margin-right: 40px;">性别</p>
+                    <el-radio-group v-model="formModel.gender">
+                        <el-radio value="1" size="small">男</el-radio>
+                        <el-radio value="2" size="small">女</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+
                 <el-button :onclick="register" type="primary" class="button">注册</el-button>
                 <a href="/" class="flex">已有账号？去登录</a>
             </el-form>
@@ -110,7 +145,7 @@ h1 {
 
 .loginFrame {
     width: 35vw;
-    height: 45vh;
+    height: 70vh;
     box-shadow: -3px 0px 24px #a1b4cc;
     border-radius: 31px;
     border: 2px solid #00afee;

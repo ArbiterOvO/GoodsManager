@@ -1,11 +1,14 @@
 import request from '@/utils/request'
 
 //注册接口
-export const registerService = ({ username, password, repassword }) => {
+export const registerService = ({ username, password, repassword, age, phone, gender }) => {
   return request.post('/user/register', {
     username,
     password,
-    repassword
+    repassword,
+    age,
+    phone,
+    gender
   })
 }
 

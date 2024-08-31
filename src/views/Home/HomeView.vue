@@ -1,9 +1,29 @@
 <script setup>
 import router from '@/router';
+import { getNewsAll } from '@/api/news'
+import { onMounted, ref } from 'vue';
+import { formattedDate } from '@/utils/date'
+onMounted(() => {
+    getNewsList();
+})
+const getNewsList = async () => {
+    const res = await getNewsAll();
+    newsList.value = res.data.data;
+}
+const newsList = ref([
+    {
+        title: '新闻标题1',
+        content: '新闻内容1',
+        img: '',
+        createTime: ''
+    }
+]);
 const getDate = () => {
     const date = new Date();
     return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
 }
+
+
 const menu = [
     {
         name: '商品管理',
@@ -63,6 +83,10 @@ const menu = [
                                 <ArrowRightBold />
                             </el-icon>
                         </div>
+                    </el-row>
+                    <el-row class="news" v-for="(news, index) in newsList" :key="index">
+                        <span class="title">{{ news.title }}</span>
+                        <span class="time">{{ formattedDate(news.createTime) }}</span>
                     </el-row>
                 </div>
             </el-col>
@@ -158,5 +182,30 @@ const menu = [
     cursor: pointer;
     background-color: aliceblue;
 
+}
+
+.news {
+    margin-left: 5px;
+    margin-top: 8px;
+    margin-right: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+
+    :hover {
+        cursor: pointer;
+    }
+
+    .time {
+        color: #333;
+        font-weight: 500;
+    }
+
+    .title {
+        color: #666;
+        border-bottom: 1px solid #666;
+        font-weight: 500;
+    }
 }
 </style>
