@@ -1,17 +1,27 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { Edit, Delete } from '@element-plus/icons-vue'
+import { Edit, Delete, Search } from '@element-plus/icons-vue'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
-import { getGoodAll, deleteGood } from '@/api/good.js'
+import { getGoodAll, deleteGood, searchGood } from '@/api/good.js'
 import GoodDrawer from '@/views/Goods/components/GoodDrawer.vue'
 import { ElMessage } from 'element-plus';
+import { getCategoryAll } from '@/api/category'
 const currentPage = ref(1)
 const pageSize = ref(10)
-//编辑商品逻辑
+const categoryList = ref([])
+const inputValue = ref()
+//获取分类列表
+const getCategory = async () => {
+    const res = await getCategoryAll()
+    console.log(res.data)
+    categoryList.value = res.data.data
+}
+//编辑新增商品逻辑
 const onEditChannel = (row, index) => {
     console.log(row.id + '' + index)
     goodDrawerRef.value.open(row)
 }
+//删除商品
 const onDelChannel = (row, index) => {
     deleteGood(row.id).then(res => {
         console.log(res)
@@ -20,17 +30,37 @@ const onDelChannel = (row, index) => {
         } else {
             ElMessage.error('删除失败，请联系管理员')
         }
-        getGoods()
+        onSearch()
     })
     console.log(row + index)
+}
+//搜索
+const onSearch = async () => {
+    //searchDate.value.id = searchType.value == '0' ? searchDate.value.searchContent : ''
+    console.log(searchType.value)
+    if (searchType.value == '0')
+        searchDate.value.id = inputValue.value
+    else
+        searchDate.value.searchContent = inputValue.value
+    const res = await searchGood(searchDate.value)
+    if (res.data.code == 1) {
+        tableData.value = res.data.data
+    } else {
+        ElMessage.error('搜索失败，请联系管理员')
+    }
 }
 const handleCurrentChange = (current) => {
     currentPage.value = current
 }
-
+const clearSearchData = () => {
+    console.log('clear')
+    searchDate.value.id = ''
+    searchDate.value.searchContent = ''
+    inputValue.value = ''
+}
 onMounted(() => {
     getGoods()
-
+    getCategory()
 })
 const tableData = ref([
     {
@@ -47,6 +77,27 @@ const tableData = ref([
     }
 ]
 )
+//搜索方式 0 id  1 名称
+const searchType = ref('1')
+const searchTypeList = [
+    {
+        value: '1',
+        label: '名称'
+    },
+    {
+        value: '0',
+        label: 'ID'
+    }
+]
+//搜索内容
+const searchDate = ref(
+    {
+        id: '',
+        searchContent: '',
+        categoryId: '',
+        status: ''
+    }
+)
 const getGoods = async () => {
     const res = await getGoodAll()
     tableData.value = res.data.data
@@ -54,7 +105,7 @@ const getGoods = async () => {
 }
 const goodDrawerRef = ref()
 const onSuccess = () => {
-    getGoods()
+    onSearch()
 }
 </script>
 
@@ -62,9 +113,54 @@ const onSuccess = () => {
     <div class="container">
         <!-- 新增的抽屉 -->
         <good-drawer ref="goodDrawerRef" @success="onSuccess"></good-drawer>
+        <!-- 功能栏 -->
         <el-row class="funtion">
-            <el-button type="primary" round @click="goodDrawerRef.open({})">新增</el-button>
+
+            <el-form :inline="true" v-model="searchDate" class="search-form">
+                <!-- 搜索类型 -->
+                <el-form-item>
+                    <span class="label">搜索类型</span>
+                    <el-select @change="clearSearchData" v-model="searchType" style="width: 4vw;margin-right: 0vw;">
+                        <el-option v-for="item in searchTypeList" :key="item.value" :value="item.value"
+                            :label="item.label" />
+                    </el-select>
+                </el-form-item>
+                <!-- 搜索内容 -->
+                <el-form-item>
+                    <el-input @clear="onSearch" @change="onSearch" v-model="inputValue" style="width: 20vw;" clearable
+                        :suffix-icon="Search" :placeholder="searchType == '1' ? '输入相关名称' : '输入相关ID'" />
+                </el-form-item>
+                <!-- 搜索按钮 -->
+                <el-form-item>
+                    <el-button type="primary" @click="onSearch">搜索</el-button>
+                </el-form-item>
+                <!-- 搜索类别 -->
+                <el-form-item>
+                    <div style="display: flex;flex-direction: row;justify-content: center;align-items: center">
+                        <span class="label">商品类别</span>
+                        <el-select @change="onSearch" v-model="searchDate.categoryId" placeholder="全部"
+                            style="width: 8vw;">
+                            <el-option label="全部" value=""></el-option>
+                            <el-option v-for="category in categoryList" :key="category.id" :label="category.name"
+                                :value="category.id" />
+                        </el-select>
+                    </div>
+                </el-form-item>
+                <!-- 搜索状态 -->
+                <el-form-item>
+                    <div style="display: flex;flex-direction: row;justify-content: center;align-items: center">
+                        <span class="label">商品状态</span>
+                        <el-select @change="onSearch" v-model="searchDate.status" placeholder="全部" style="width: 8vw;">
+                            <el-option label="全部" value=""></el-option>
+                            <el-option value=" 1" label="在售">在售</el-option>
+                            <el-option value="0" label="下架">下架</el-option>
+                        </el-select>
+                    </div>
+                </el-form-item>
+            </el-form>
+            <el-button style="margin-bottom: 2vh;" type="primary" round @click="goodDrawerRef.open({})">新增</el-button>
         </el-row>
+        <!-- 表格 -->
         <el-table class=" table" :data="tableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)" stripe>
             <el-table-column prop="goodId" label="商品编号" width="100px" />
             <el-table-column prop="name" label="商品名称" width="200px" />
@@ -129,5 +225,16 @@ const onSuccess = () => {
     align-items: center;
     text-align: center;
 
+}
+
+.search-form {
+    width: 100wh;
+}
+
+.label {
+    font-size: 18px;
+    color: #444444;
+    margin-left: 1vw;
+    margin-right: 1vw;
 }
 </style>

@@ -4,3 +4,8 @@ import request from '@/utils/request'
 export function getNewsAll() {
   return request.get('/news/all')
 }
+
+//根据id获取新闻
+export function getNewsById(id) {
+  return request.get(`/news/${id}`)
+}

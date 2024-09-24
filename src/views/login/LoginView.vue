@@ -49,8 +49,7 @@ const login = async () => {
             登录
         </h1>
         <div class="loginFrame">
-            <el-form ref="form" :model="formModel" :rules="rules" class="form">
-
+            <el-form ref="form" :model="formModel" :rules="rules" class="form" @keyup.enter="login">
                 <el-form-item prop="username">
                     <p>用户名</p>
                     <el-input v-model="formModel.username" style="width: 20vw;" placeholder="请输入用户名"></el-input>

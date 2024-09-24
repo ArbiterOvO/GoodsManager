@@ -45,6 +45,16 @@ const menu = [
         router: '/brand'
     }
 ]
+
+const toNewsPage = (news) => {
+    console.log(news);
+    router.push({
+        path: '/news',
+        query: {
+            id: news.id
+        }
+    })
+}
 </script>
 <template>
     <el-col class="home-body">
@@ -84,7 +94,7 @@ const menu = [
                             </el-icon>
                         </div>
                     </el-row>
-                    <el-row class="news" v-for="(news, index) in newsList" :key="index">
+                    <el-row class="news" v-for="(news, index) in newsList" :key="index" @click="toNewsPage(news)">
                         <span class="title">{{ news.title }}</span>
                         <span class="time">{{ formattedDate(news.createTime) }}</span>
                     </el-row>

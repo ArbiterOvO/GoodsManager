@@ -24,3 +24,8 @@ export const editGood = (data) => {
 export const deleteGood = (id) => {
   return request.delete(`/good/delete/${id}`)
 }
+
+//搜索商品
+export const searchGood = (data) => {
+  return request.post('/good/search', data)
+}

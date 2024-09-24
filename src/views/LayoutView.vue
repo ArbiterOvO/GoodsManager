@@ -160,6 +160,10 @@ const logout = () => {
     cursor: pointer;
 }
 
+.el-dropdown-link:focus {
+    outline: none;
+}
+
 .el-dropdown-menu {
     background-color: #d8e5f3;
 }
@@ -170,11 +174,5 @@ const logout = () => {
 
 .el-dropdown-menu__item:hover {
     background-color: #1a4979
-}
-
-.el-dropdown-link {
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
 }
 </style>

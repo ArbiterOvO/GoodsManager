@@ -2,7 +2,10 @@
 import { onMounted, ref } from 'vue';
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import { Edit, Delete } from '@element-plus/icons-vue'
-import { getBrandAll } from '@/api/brand'
+import { deleteBrand, getBrandAll } from '@/api/brand'
+import BrandDrawer from '@/views/Brands/components/BrandDrawer.vue'
+import { ElMessage } from 'element-plus';
+const brandDrawerRef = ref()
 const currentPage = ref(1)
 const pageSize = ref(10)
 onMounted(() => {
@@ -15,8 +18,21 @@ const getBrand = async () => {
 }
 const onEditChannel = (row, index) => {
     console.log(row + index)
+    brandDrawerRef.value.open(row)
 }
 const onDelChannel = (row, index) => {
+    deleteBrand(row.id).then(res => {
+        if (res.data.code == 1) {
+            ElMessage({
+                message: '删除成功',
+                type: 'success',
+            })
+            getBrand()
+        } else {
+            ElMessage('删除失败')
+        }
+    })
+    console.log(row + index)
     console.log(row + index)
 }
 const handleCurrentChange = (current) => {
@@ -39,12 +55,27 @@ const tableData = ref([
         soldNumber: '50',
     }
 ])
+
+const onSuccess = () => {
+    getBrand()
+}
 </script>
 
 <template>
     <div class="container">
+        <brand-drawer ref="brandDrawerRef" @success="onSuccess"></brand-drawer>
         <el-row class="funtion">
-            <el-button></el-button>
+            <el-form :inline="true" class="search-form" @submit.prevent>
+                <el-form-item>
+                    <el-input @clear="onSearch" @change="onSearch" v-model="inputValue" style="width: 20vw;" clearable
+                        :suffix-icon="Search" placeholder="输入相关名称" />
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="onSearch">搜索</el-button>
+                </el-form-item>
+            </el-form>
+            <el-button style="margin-bottom: 2vh;margin-left: 10vw;" type="primary" round
+                @click="brandDrawerRef.open({})">新增</el-button>
         </el-row>
         <el-table class="table" :data="tableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)" stripe>
             <el-table-column prop="name" label="品牌名称" width="300px" />
@@ -82,8 +113,12 @@ const tableData = ref([
 }
 
 .funtion {
+    padding: 20px;
     width: 100%;
     height: 8vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .table {
