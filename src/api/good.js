@@ -29,3 +29,16 @@ export const deleteGood = (id) => {
 export const searchGood = (data) => {
   return request.post('/good/search', data)
 }
+
+//上传图片
+export const uploadImg = (file, data) => {
+  return request({
+    url: '/good/upload/imgs',
+    method: 'post',
+    data: file,
+    params: {
+      goodId: data.goodId,
+      type: data.type
+    }
+  })
+}

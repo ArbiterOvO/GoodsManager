@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { getGoodById, addGood, editGood } from '@/api/good'
+import { getGoodById, addGood, editGood, uploadImg } from '@/api/good'
 import { getCategoryAll } from '@/api/category'
 import { getBrandAll } from '@/api/brand'
 import { getSourceAll } from '@/api/source'
@@ -28,9 +28,13 @@ const getSource = async () => {
     const res = await getSourceAll()
     sourceList.value = res.data.data
 }
+
 //表单提交
 const submit = async () => {
     if (drawerStatus.value === 1) { // 新增
+        uploadData.value.goodId = formData.value.goodId
+        uploadRef.value.submit()
+        formData.value.img = 'https://localhost/' + formData.value.goodId + (uploadData.value.type ? uploadData.value.type : '.png')
         const res = await addGood(formData.value)
         if (res.data.code === 1) {
             visibleDrawer.value = false
@@ -61,11 +65,14 @@ const open = async (row) => {
         const res = await getGoodById(row.id)
         formData.value = res.data.data // 赋值给表单数据
         formData.value.status = res.data.data.status.toString()//状态转字符串
+        fileList.value = [{ url: res.data.data.img }]
+        console.log(formData.value)
         getCategory()
         getBrand()
         getSource()
     } else {
         drawerStatus.value = 1
+        fileList.value = []
         formData.value = { ...defaultForm } // 否则赋值默认数据
         getCategory()
         getBrand()
@@ -84,9 +91,33 @@ const defaultForm = {
     price: '',
     status: '',
     sourceId: '',
-    brandId: ''
+    brandId: '',
+    img: ''
+}
+//文件相关
+const uploadRef = ref()
+const fileList = ref([])
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const uploadData = ref({
+    goodId: '',
+    type: ''
+})
+const upload = (param) => {
+    const formData = new FormData()
+    formData.append('file', param.file)
+    uploadImg(formData, uploadData.value)
+}
+const handleChange = (uploadFile, uploadfileList) => {
+    uploadData.value.type = '.' + uploadFile.raw.type.split('/')[1]
+    fileList.value = uploadfileList
+}
+const handlePictureCardPreview = (uploadFile) => {
+    dialogImageUrl.value = uploadFile.url
+    dialogVisible.value = true
 
 }
+
 
 const formData = ref({ ...defaultForm })
 </script>
@@ -94,6 +125,19 @@ const formData = ref({ ...defaultForm })
 <template>
     <el-dialog v-model="visibleDrawer" :title="formData.id ? '编辑商品' : '新增商品'" width="500">
         <el-form :model="formData" style="margin-right: 10px;">
+            <el-form-item label="图片" label-width="80px">
+                <el-upload class="avatar-uploader" action="" :http-request="upload" :auto-upload="false"
+                    :on-change="handleChange" list-type="picture-card" :on-preview="handlePictureCardPreview" :limit="1"
+                    :data="uploadData" :file-list="fileList" ref="uploadRef">
+                    <el-icon class="avatar-uploader-icon">
+                        <Plus />
+                    </el-icon>
+                </el-upload>
+                <el-dialog v-model="dialogVisible">
+                    <img w-full :src="dialogImageUrl" alt="Preview Image" />
+                </el-dialog>
+            </el-form-item>
+
             <el-form-item label="商品编号" label-width="80px">
                 <el-input v-model="formData.goodId" autocomplete="off" />
             </el-form-item>
@@ -145,5 +189,13 @@ const formData = ref({ ...defaultForm })
 .dialog-footer {
     display: flex;
     justify-content: center;
+}
+
+::v-deep .el-list-leave-active {
+    transition: none;
+}
+
+::v-deep .el-list-leave-to {
+    transition: none;
 }
 </style>
